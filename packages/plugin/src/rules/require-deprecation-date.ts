@@ -6,7 +6,9 @@ import { getNodeName } from '../utils.js';
 
 // eslint-disable-next-line unicorn/better-regex
 const DATE_REGEX1 = /^\d{2}\/\d{2}\/\d{4}$/;
-const DATE_REGEX2 = /^\d{4}(?:\/\d{2}){2}$/;
+
+// eslint-disable-next-line unicorn/better-regex
+const DATE_REGEX2 = /^\d{4}\-\d{2}\-\d{2}$/;
 
 const MESSAGE_REQUIRE_DATE = 'MESSAGE_REQUIRE_DATE';
 const MESSAGE_INVALID_FORMAT = 'MESSAGE_INVALID_FORMAT';
@@ -99,19 +101,18 @@ export const rule: GraphQLESLintRule<RuleOptions> = {
         const isValidDate1 = DATE_REGEX1.test(deletionDate);
         const isValidDate2 = DATE_REGEX2.test(deletionDate);
 
-        if (!isValidDate1 && !isValidDate2) {
+        let day, month, year;
+        if (isValidDate1) {
+          [day, month, year] = deletionDate.split('/');
+        } else if (isValidDate2) {
+          [year, month, day] = deletionDate.split('-');
+        } else {
           context.report({
             node: deletionDateNode.value,
             messageId: MESSAGE_INVALID_FORMAT,
             data: { nodeName: getNodeName(node.parent) },
           });
           return;
-        }
-        let day, month, year;
-        if (isValidDate1) {
-          [day, month, year] = deletionDate.split('/');
-        } else if (isValidDate2) {
-          [year, month, day] = deletionDate.split('-');
         }
         day = day.padStart(2, '0');
         month = month.padStart(2, '0');
