@@ -1,11 +1,11 @@
-import { relative } from 'path';
+import { relative } from 'node:path';
+import { Linter } from 'eslint';
+import { GraphQLConfig } from 'graphql-config';
 import {
   gqlPluckFromCodeStringSync,
   GraphQLTagPluckOptions,
 } from '@graphql-tools/graphql-tag-pluck';
 import { asArray } from '@graphql-tools/utils';
-import { Linter } from 'eslint';
-import { GraphQLConfig } from 'graphql-config';
 import { loadOnDiskGraphQLConfig } from './graphql-config.js';
 import { CWD, REPORT_ON_FIRST_CHARACTER, truthy } from './utils.js';
 
@@ -21,7 +21,7 @@ let onDiskConfigLoaded = false;
 
 const RELEVANT_KEYWORDS = ['gql', 'graphql', 'GraphQL'] as const;
 
-export const processor: Linter.Processor<Block | string> = {
+export const processor = {
   supportsAutofix: true,
   preprocess(code, filePath) {
     if (!onDiskConfigLoaded) {
@@ -123,4 +123,4 @@ export const processor: Linter.Processor<Block | string> = {
     // sort eslint/graphql-eslint messages by line/column
     return result.sort((a, b) => a.line - b.line || a.column - b.column);
   },
-};
+} satisfies Linter.Processor<Block | string>;

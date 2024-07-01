@@ -1,5 +1,5 @@
-import * as graphqlESLint from '@graphql-eslint/eslint-plugin';
 import js from '@eslint/js';
+import * as graphqlESLint from '@graphql-eslint/eslint-plugin';
 
 export default [
   {
@@ -17,9 +17,6 @@ export default [
     },
     languageOptions: {
       parser: graphqlESLint,
-      parserOptions: {
-        schema: 'schema.graphql',
-      },
     },
     rules: {
       '@graphql-eslint/no-anonymous-operations': 'error',

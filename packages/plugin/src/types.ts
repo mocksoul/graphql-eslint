@@ -1,30 +1,18 @@
-import { GraphQLParseOptions } from '@graphql-tools/utils';
 import { AST, Linter, Rule } from 'eslint';
 import * as ESTree from 'estree';
-import { GraphQLSchema } from 'graphql';
-import { IExtensions, IGraphQLProject } from 'graphql-config';
+import { ASTKindToNode, GraphQLSchema } from 'graphql';
+import { IGraphQLConfig } from 'graphql-config';
 import { JSONSchema } from 'json-schema-to-ts';
+import { GraphQLESTreeNode } from './estree-converter/index.js';
 import { SiblingOperations } from './siblings.js';
-import { GraphQLESLintRuleListener } from './testkit.js';
 
 export type Schema = GraphQLSchema | null;
 export type Pointer = string | string[];
+export { GraphQLESTreeNode } from './estree-converter/types.js';
 
 export interface ParserOptions {
-  schema?: Pointer | Record<string, { headers: Record<string, string> }>;
-  documents?: Pointer;
-  extensions?: IExtensions;
-  include?: Pointer;
-  exclude?: Pointer;
-  projects?: Record<string, IGraphQLProject>;
-  schemaOptions?: Omit<GraphQLParseOptions, 'assumeValidSDL'> & {
-    headers: Record<string, string>;
-  };
-  graphQLParserOptions?: Omit<GraphQLParseOptions, 'noLocation'>;
-  skipGraphQLConfig?: boolean;
+  graphQLConfig?: IGraphQLConfig;
   filePath: string;
-  /** @deprecated Use `documents` instead */
-  operations?: Pointer;
 }
 
 export type ParserServices = {
@@ -65,14 +53,16 @@ export type RuleDocsInfo<T> = Omit<RuleMetaDataDocs, 'category' | 'suggestion'> 
     code: string;
     usage?: T;
   }[];
-  configOptions?:
-    | T
-    | {
-        schema?: T;
-        operations?: T;
-      };
+  configOptions?: T | { schema?: T; operations?: T };
   graphQLJSRuleName?: string;
   isDisabledForAllConfig?: true;
+};
+
+export type GraphQLESLintRuleListener<WithTypeInfo extends boolean = false> = Record<
+  string,
+  any
+> & {
+  [K in keyof ASTKindToNode]?: (node: GraphQLESTreeNode<ASTKindToNode[K], WithTypeInfo>) => void;
 };
 
 export type GraphQLESLintRule<Options = [], WithTypeInfo extends boolean = false> = {
@@ -93,3 +83,10 @@ export type OmitRecursively<T extends object, K extends PropertyKey> = Omit<
   { [P in keyof T]: OmitDistributive<T[P], K> },
   K
 >;
+
+export type ConfigName =
+  | 'operations-all'
+  | 'operations-recommended'
+  | 'schema-all'
+  | 'schema-recommended'
+  | 'schema-relay';

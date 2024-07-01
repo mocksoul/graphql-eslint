@@ -1,8 +1,8 @@
-import { resolve } from 'path';
-import { Source } from '@graphql-tools/utils';
+import { resolve } from 'node:path';
 import debugFactory from 'debug';
 import fg from 'fast-glob';
 import { GraphQLProjectConfig } from 'graphql-config';
+import { Source } from '@graphql-tools/utils';
 import { ModuleCache } from './cache.js';
 import { Pointer } from './types.js';
 
